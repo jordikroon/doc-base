@@ -526,6 +526,11 @@ function gen_class_markup(ReflectionClass $class, $content) { /* {{{ */
 		$markup = "<classsynopsisinfo role=\"comment\">Constants</classsynopsisinfo>". PHP_EOL;
 
 		foreach ($constants as $constant => $value) {
+            // $value can be an enum case, in which case we want to show it as Enum::CASE_NAME
+            if ($value instanceof UnitEnum) {
+                $value = $value::class . '::' . $value->name;
+            }
+
 			$markup .= str_repeat(' ', $ident) ."<fieldsynopsis>". PHP_EOL;
 			$markup .= str_repeat(' ', $ident + 1) ."<modifier>const</modifier>". PHP_EOL;
 			$markup .= str_repeat(' ', $ident + 1) .get_xml_type_tag_or_entity($value, false). PHP_EOL; // For the class synopsis we use explicit <type> elements
