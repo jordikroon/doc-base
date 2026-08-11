@@ -102,6 +102,38 @@ final class LocalEnvironment implements Environment
         ]);
     }
 
+    public function serveWebDoc(int $port): int
+    {
+        $webdoc = $this->workspace->webDocDir();
+
+        // router.php resolves www/ relative to the working directory, so
+        // the server has to run from inside the web-doc checkout.
+        return $this->runner->run(
+            [PHP_BINARY, '-S', "localhost:$port", 'router.php'],
+            $webdoc,
+            [
+                'PHPDOC_GIT_DIR' => $this->workspace->rootdir(),
+                'SQLITE_DIR' => "$webdoc/sqlite",
+                'BASE_DOCS_PATH' => $this->workspace->basedir() . '/docs',
+            ]
+        );
+    }
+
+    public function generateRevisionDb(array $langs): int
+    {
+        if (!$this->requireLocalPhp(80100, 'generating status.sqlite')) {
+            return 1;
+        }
+
+        // genrevdb resolves en and each language relative to the working
+        // directory, so it must run from the workspace root.
+        return $this->runner->run(array_merge([
+            PHP_BINARY,
+            $this->workspace->basedir() . '/scripts/translation/genrevdb.php',
+            $this->workspace->webDocDir() . '/sqlite/status.sqlite.new',
+        ], $langs), $this->workspace->rootdir());
+    }
+
     public function shell(string $lang): int
     {
         fwrite(STDERR, "error: docker shell requires Docker.\n");

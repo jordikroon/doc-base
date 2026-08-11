@@ -43,6 +43,53 @@ final class Workspace
         return realpath("$root/doc-$lang") ?: "$root/$lang";
     }
 
+    public function webDocDir(): string
+    {
+        $dir = $this->rootdir() . '/web-doc';
+
+        return realpath($dir) ?: $dir;
+    }
+
+    public function ensureWebDocRepos(): bool
+    {
+        $dir = $this->webDocDir();
+
+        return $this->ensureRepo($dir, 'https://github.com/php/web-doc.git')
+            && $this->ensureRepo("$dir/shared", 'https://github.com/php/web-shared.git');
+    }
+
+    /**
+     * Language checkouts present in the workspace, i.e. sibling directories
+     * with a translation.xml (so en/doc-base are never included).
+     *
+     * @return array<string, string> Language code => absolute directory.
+     */
+    public function translationCheckouts(): array
+    {
+        $checkouts = [];
+
+        foreach (glob($this->rootdir() . '/*', GLOB_ONLYDIR) ?: [] as $dir) {
+            if (!is_file("$dir/translation.xml")) {
+                continue;
+            }
+
+            $lang = basename($dir);
+            $bare = !str_starts_with($lang, 'doc-');
+
+            if (!$bare) {
+                $lang = substr($lang, 4);
+            }
+
+            // When both "xx" and "doc-xx" exist the bare name wins,
+            // matching langDir().
+            if ($bare || !isset($checkouts[$lang])) {
+                $checkouts[$lang] = realpath($dir);
+            }
+        }
+
+        return $checkouts;
+    }
+
     public function ensureRepo(string $dir, string $url): bool
     {
         if (is_dir($dir)) {
@@ -112,7 +159,7 @@ final class Workspace
             $repos[] = $this->langDir('en');
         }
 
-        foreach (['phd', 'docbook-cs'] as $tool) {
+        foreach (['phd', 'docbook-cs', 'web-doc', 'web-doc/shared'] as $tool) {
             if (is_dir("$root/$tool")) {
                 $repos[] = realpath("$root/$tool");
             }
@@ -156,6 +203,13 @@ final class Workspace
         }
     }
 
+    public function isShallowRepo(string $dir): bool
+    {
+        $out = $this->runner->output(['git', '-C', $dir, 'rev-parse', '--is-shallow-repository']);
+
+        return trim((string) $out) === 'true';
+    }
+
     public function removeTree(string $dir): void
     {
         $items = new RecursiveIteratorIterator(
@@ -187,7 +241,7 @@ final class Workspace
         return $config;
     }
 
-    private function confirm(string $question): bool
+    public function confirm(string $question): bool
     {
         if ($this->assumeYes) {
             return true;

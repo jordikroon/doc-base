@@ -28,6 +28,17 @@ interface Environment
     /** @param string $subdir Path inside <lang>/output to use as web root, or "". */
     public function serve(string $lang, int $port, string $subdir): int;
 
+    /** Serve the doc.php.net site from the web-doc checkout. */
+    public function serveWebDoc(int $port): int;
+
+    /**
+     * Run genrevdb.php from the workspace root, writing the translation
+     * status database to web-doc/sqlite/status.sqlite.new.
+     *
+     * @param list<string> $langs Translation language codes.
+     */
+    public function generateRevisionDb(array $langs): int;
+
     public function shell(string $lang): int;
 
     public function buildImage(): int;

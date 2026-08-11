@@ -12,6 +12,7 @@ use PhpDoc\Dev\Command\PullCommand;
 use PhpDoc\Dev\Command\RenderCommand;
 use PhpDoc\Dev\Command\ServeCommand;
 use PhpDoc\Dev\Command\ShellCommand;
+use PhpDoc\Dev\Command\WebDocServeCommand;
 use PhpDoc\Dev\Environment\DockerEnvironment;
 use PhpDoc\Dev\Environment\LocalEnvironment;
 
@@ -61,6 +62,13 @@ final class Application
             $options->format = $subcommand;
         }
 
+        // "serve" takes an optional subject: plain serve shows the rendered
+        // manual, "serve web-doc" runs the doc.php.net site.
+        if ($command === 'serve' && ($options->args[0] ?? null) === 'web-doc') {
+            array_shift($options->args);
+            $subcommand = 'web-doc';
+        }
+
         if ($command === 'cs') {
             $subcommand = array_shift($options->args);
 
@@ -96,7 +104,9 @@ final class Application
                 return (new LintCommand($workspace, $environment, $configure, fix: $subcommand === 'fix'))
                     ->execute($options);
             case 'serve':
-                return (new ServeCommand($workspace, $environment))->execute($options);
+                return $subcommand === 'web-doc'
+                    ? (new WebDocServeCommand($workspace, $environment))->execute($options)
+                    : (new ServeCommand($workspace, $environment))->execute($options);
             case 'docker':
                 return $subcommand === 'build'
                     ? (new BuildCommand($environment))->execute($options)
