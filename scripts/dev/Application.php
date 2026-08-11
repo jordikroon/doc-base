@@ -44,7 +44,7 @@ final class Application
             $subcommand = array_shift($options->args);
 
             if (!in_array($subcommand, ['build', 'shell'], true)) {
-                fwrite(STDERR, "Usage: php dev.php docker <build|shell> (see: php dev.php help)\n");
+                fwrite(STDERR, "Usage: php docdev.php docker <build|shell> (see: php docdev.php help)\n");
                 return 1;
             }
 
@@ -55,7 +55,7 @@ final class Application
             $subcommand = array_shift($options->args);
 
             if (!in_array($subcommand, ['xhtml', 'php'], true)) {
-                fwrite(STDERR, "Usage: php dev.php render <xhtml|php> (see: php dev.php help)\n");
+                fwrite(STDERR, "Usage: php docdev.php render <xhtml|php> (see: php docdev.php help)\n");
                 return 1;
             }
 
@@ -73,7 +73,7 @@ final class Application
             $subcommand = array_shift($options->args);
 
             if (!in_array($subcommand, ['lint', 'fix'], true)) {
-                fwrite(STDERR, "Usage: php dev.php cs <lint|fix> (see: php dev.php help)\n");
+                fwrite(STDERR, "Usage: php docdev.php cs <lint|fix> (see: php docdev.php help)\n");
                 return 1;
             }
         }
@@ -113,7 +113,7 @@ final class Application
                     : (new ShellCommand($environment))->execute($options);
         }
 
-        fwrite(STDERR, "Unknown command: $command (see: php dev.php help)\n");
+        fwrite(STDERR, "Unknown command: $command (see: php docdev.php help)\n");
 
         return 1;
     }

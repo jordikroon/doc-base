@@ -22,7 +22,7 @@ final class ServeCommand implements Command
         $output = $this->workspace->langDir($lang) . '/output';
 
         if (!is_dir($output)) {
-            echo "Note: $output does not exist yet; run \"php dev.php render xhtml --lang=$lang\" first.\n";
+            echo "Note: $output does not exist yet; run \"php docdev.php render xhtml --lang=$lang\" first.\n";
         }
 
         // PhD renders each format into its own subdirectory of output/.

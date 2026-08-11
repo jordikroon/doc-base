@@ -17,7 +17,7 @@ final class HelpCommand implements Command
         use.
 
         Usage:
-          php dev.php <command> [options] [extra arguments]
+          php docdev.php <command> [options] [extra arguments]
 
         Commands:
           pull           Clone missing sibling repositories and update existing ones

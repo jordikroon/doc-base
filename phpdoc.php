@@ -3,7 +3,7 @@
 
 /**
  * Dev build tool for the PHP manual, usable for every language
- * Run "php dev.php help" for usage
+ * Run "php docdev.php help" for usage
  */
 
 declare(strict_types=1);
